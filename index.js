@@ -1,13 +1,13 @@
-// Regular expression source: http://stackoverflow.com/questions/46155/validate-email-address-in-javascript
 var dns = require('dns');
 var valid = false;
+var message = '';
 var regEx = "[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?";
 
 exports.validEmail = function validEmail(email, cb) {
   // Validate email syntax
   if (!email.match(regEx)) {
     valid = false;
-    cb(valid);
+    cb(valid, 'invalid email');
     return;
   }  
 
@@ -15,12 +15,15 @@ exports.validEmail = function validEmail(email, cb) {
   var domain = email.split('@')[1];  
   dns.resolve(domain, 'MX', function(err, addresses) {    
     if (err) {
-      valid = false;      
+      valid = false; 
+      message = 'error validating mx';     
     } else if (addresses && addresses.length > 0) {      
       valid = true;
+      message = '';     
     } else {
+      message = 'no mx record Found';
       valid = false;
     }
-    cb(valid);    
+    cb(valid, message);    
   });
 }
